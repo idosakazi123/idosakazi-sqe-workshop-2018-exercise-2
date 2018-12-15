@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <style>
+            table {
+                width: 100%;
+                height: 100%;
+            }
+
+            .textAreaWrapper {
+                width: 100%;
+                height: 80vh;
+            }
+
+            textarea {
+                width: 80%;
+                height: 95%;
+            }
+            table#viewTable tr:nth-child(even) {
+                background-color: #eee;
+            }
+            table#viewTable tr:nth-child(odd) {
+                background-color: #fff;
+            }
+            table#viewTable th {
+                background-color: black;
+                color: white;
+                #padding: 15px;
+                text-align: center;
+            }
+            table#viewTable td {
+                #padding: 15px;
+                text-align: left;
+            }
+
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <div>
+                        <label>Enter code here</label>
+                    </div>
+                <!--</td><td>
+                    <div>
+                        <label>Parsed code here</label>
+                    </div>
+                </td>-->
+                <td>
+                    <div>
+                        <label>Table view</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="textAreaWrapper">
+                        <textarea id="codePlaceholder" title="Enter code here"></textarea>
+                    </div>
+                </td>
+                <!--<td>
+                    <div class="textAreaWrapper">
+                        <textarea id="parsedCode" title="Parse code"></textarea>
+                    </div>
+                </td>-->
+                <td>
+                    <div >
+                        <table id="viewTable" title="view table"></table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div>
+                        <button id="codeSubmissionButton">Parse code</button>
+                    </div>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+
+        <script src="dist/bundle.js"></script>
+    </body>
+</html>
