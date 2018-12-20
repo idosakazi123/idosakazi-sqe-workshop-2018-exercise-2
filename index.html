@@ -18,12 +18,12 @@
                 width: 80%;
                 height: 95%;
             }
-            table#viewTable tr:nth-child(even) {
+            /*table#viewTable tr:nth-child(even) {
                 background-color: #eee;
             }
             table#viewTable tr:nth-child(odd) {
                 background-color: #fff;
-            }
+            }*/
             table#viewTable th {
                 background-color: black;
                 color: white;
@@ -44,7 +44,13 @@
                     <div>
                         <label>Enter code here</label>
                     </div>
-                <!--</td><td>
+                </td>
+                <td>
+                    <div>
+                        <label>Enter Input vector</label>
+                    </div>
+                </td>
+                <!--<td>
                     <div>
                         <label>Parsed code here</label>
                     </div>
@@ -61,11 +67,16 @@
                         <textarea id="codePlaceholder" title="Enter code here"></textarea>
                     </div>
                 </td>
+                <td>
+                   <div class="textAreaWrapper">
+                       <textarea id="inputVector" title="Enter Input vector"></textarea>
+                   </div>
+               </td>
                 <!--<td>
                     <div class="textAreaWrapper">
                         <textarea id="parsedCode" title="Parse code"></textarea>
                     </div>
-                </td>-->
+                </td> -->
                 <td>
                     <div >
                         <table id="viewTable" title="view table"></table>
