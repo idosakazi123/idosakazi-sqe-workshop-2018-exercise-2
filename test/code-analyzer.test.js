@@ -247,10 +247,63 @@ describe('check array', () => {
     });
 });
 
+describe('check array2', () => {
+    it('return array with boolean ', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x = [true,2,4]','function foo(x){\nlet a = 3;\nlet b =5 ;\n\n\nif(x[2] < a+b){\n\nreturn x[0];\n\n}\n\n}')),
+            '"<tr><td>function foo(x){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;if(x[2] < 3 + 5 ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return x[0];</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+});
 
+describe('function with while  if and assignment', () => {
+    it('while  if and assignment', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x =1,y=2,z=8','function foo(x){\nlet  a = x+2;\nlet b = y + a ;\nlet c = 0;\n\nwhile(c < z){\n\nif(a<z){\nlet d = a + y ;\nc= c +1  + d ;\n\n}else{\nlet f = y +3\nc= c + y + f + 1; \n}\n\n\n}\nreturn x + y + z + c;\n\n}')),
+            '"<tr><td>function foo(x){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;while(0 < z){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x + 2 < z ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(0) + 1 + (x + 2 + y);</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(0) + (y) + (y + 3) + 1;</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>&nbsp;&nbsp;&nbsp;return (x) + (y) + (z) + ((0) + (y) + (y + 3) + 1);</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+});
 
+describe('function with while  if and assignment', () => {
+    it('while  if and assignment', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x =1,y=2,z=8','function foo(x){\nlet  a = x+2;\nlet b = y + a ;\nlet c = 0;\n\nwhile(c < z){\n\nif(a<z){\nlet d = a + y ;\nc= c +1  + d ;\n\n}else{\nlet f = y +3\nc= c + y + f + 1; \n}\n\n\n}\nreturn x + y + z + c;\n\n}')),
+            '"<tr><td>function foo(x){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;while(0 < z){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(x + 2 < z ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(0) + 1 + (x + 2 + y);</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else{</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(0) + (y) + (y + 3) + 1;</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>&nbsp;&nbsp;&nbsp;return (x) + (y) + (z) + ((0) + (y) + (y + 3) + 1);</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+});
 
+describe('function with if and assignment', () => {
+    it('if and assignment local with global', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x=1,y=[true,2,3]','function foo(x,y){\nlet a = 10;\nlet b = a + 20;\nlet c = y[1];\n\nif(y[0]){\na = a + x + 20 + y[2];\nc = c + a;\n}else{\nb = b + x + 20 + y[2];\nc = c + b;\n}\n\n\nreturn c;\n\n\n}')),
+            '"<tr><td>function foo(x,y){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;if(y[0] ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(y[1]) + ((10) + (x) + 20 + y[2]);</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}else{</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c=(y[1]) + ((10 + 20) + (x) + 20 + y[2]);</td></tr><tr><td>&nbsp;&nbsp;&nbsp;return (y[1]) + ((10 + 20) + (x) + 20 + y[2]);</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+});
 
+describe('function with identifier if  ', () => {
+    it('identifier if true', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x=true,y=2,z=3', 'function foo(x,y,z){\nlet c = z+y;\nif(x){\nreturn c;\n}\n}')),
+            '"<tr><td>function foo(x,y,z){</td></tr><tr bgcolor=#00FF00><td>&nbsp;&nbsp;&nbsp;if(true ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return z + y;</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+    it('identifier if false', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x=false,y=2,z=3', 'function foo(x,y,z){\nlet c = z+y;\nif(x){\nreturn c;\n}\n}')),
+            '"<tr><td>function foo(x,y,z){</td></tr><tr bgcolor=#FF0000><td>&nbsp;&nbsp;&nbsp;if(false ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return z + y;</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+
+    it('identifier if member false', () => {
+        assert.equal(
+            JSON.stringify(makeTable('x=[false]', 'function foo(x){\nif(x[0]){\nreturn x;\n}\n}')),
+            '"<tr><td>function foo(x){</td></tr><tr bgcolor=#FF0000><td>&nbsp;&nbsp;&nbsp;if(x[0] ){</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return x;</td></tr><tr><td>&nbsp;&nbsp;&nbsp;}</td></tr><tr><td>}</td></tr>"'
+        );
+    });
+});
 
 
 
