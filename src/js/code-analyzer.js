@@ -65,6 +65,7 @@ let typeHandelLocal = {
     'Literal' : literalLocalHandel,
     'Identifier' : identifierLocalHandel
 };
+
 let typeHandelGlobal ={
     'ExpressionStatement' : expressionStatementGlobalHandle,
     'VariableDeclaration' : variableDeclarationGlobalHandle,
@@ -115,19 +116,21 @@ function variableDeclarationIfHandel(obj){
     let objectDeclaration = {};
     objDeclaration.forEach(dec =>{
         objectDeclaration['name'] = dec.id.name;objectDeclaration['value'] = null;
-        if(dec.init != null ){
+        objectDeclaration['value'] = checkTypeGlobal(dec.init);
+        /*if(dec.init != null ){
             objectDeclaration['value'] = checkTypeGlobal(dec.init);
         }else{
             dec.init != null;
-        }
+        }*/
         insertToLocalVariableIF(objectDeclaration);
     });
 }
 
 function insertToLocalVariableIF(res){
-    let variableLocal;
+    arrayVariables.localVariableIF.push(res);
+    /*let variableLocal;
     arrayVariables.localVariableIF.forEach(variable =>{
-        if(res.name === variable.name) {
+        if(res.name === variable.name){
             variableLocal = variable;
         }
     });
@@ -135,7 +138,7 @@ function insertToLocalVariableIF(res){
         arrayVariables.localVariableIF.push(res);
     }else {
         variableLocal.value = res.value;
-    }
+    }*/
 }
 
 function binaryExpressionIfHandel(obj){
@@ -144,16 +147,8 @@ function binaryExpressionIfHandel(obj){
     let binaryLeft = checkTypeIf(objBinaryLeft);
     let operator = obj.operator ;
     let boolRight; let boolLeft;
-    if(objBinaryRight.type === 'Identifier'){
-        boolRight = true;
-    }else{
-        boolRight = false;
-    }
-    if(objBinaryLeft.type === 'Identifier'){
-        boolLeft = true;
-    }else{
-        boolLeft = false;
-    }
+    boolRight = objBinaryRight.type === 'Identifier';
+    boolLeft = objBinaryLeft.type === 'Identifier';
     return createBinaryExpression(binaryRight,binaryLeft,operator,boolRight,boolLeft);
 }
 
@@ -167,21 +162,20 @@ function returnStatementIfHandel(obj){
 }
 
 function identifierIfHandel(obj){
-    let objectVariableGlobal;let objectVariableIfLocal;/*let variableLocal;*/
+    let objectVariableGlobal='';let objectVariableIfLocal;/*let variableLocal;*/
     arrayVariables.globalVariablesArray.forEach(variable =>{
         if(variable.name === obj.name ){
             objectVariableGlobal = variable;}
     });
-    if(objectVariableGlobal !== undefined){
-        return objectVariableGlobal.name;
-    }
     arrayVariables.localVariableIF.forEach( variable =>{
         if(variable.name === obj.name ){
             objectVariableIfLocal = variable;}
     });
-    if(objectVariableIfLocal !== undefined){
+    if(objectVariableIfLocal !== undefined)
         return objectVariableIfLocal.value;
-    }
+    else
+        return objectVariableGlobal.name;
+
     /*variableLocal = checkIfVariableInLocalVariable(obj);
     if(variableLocal !== undefined)
         return variableLocal.value;*/
@@ -213,34 +207,34 @@ function AssignmentExpressionIfHandel(obj){
             objectVariableGlobal = variable;}
     });
     if(objectVariableGlobal !== undefined){
-        valueOfObject = getNiceValue(checkTypeIf(obj.right));
+        /*valueOfObject = getNiceValue(checkTypeIf(obj.right));*/valueOfObject = checkTypeIf(obj.right);
     }
     arrayVariables.localVariableIF.forEach( variable =>{
         if(variable.name === leftObject ){
             objectVariableLocal = variable;}
     });
     if(objectVariableLocal !== undefined){
-        valueOfObject = getNiceValue(checkTypeIf(obj.right));
+        /*valueOfObject = getNiceValue(checkTypeIf(obj.right));*/valueOfObject = checkTypeIf(obj.right);
         objectVariableLocal.value = valueOfObject;
     }
     let ans = {};ans.name = leftObject;ans.value = valueOfObject;
     return ans;
 }
 
-function getNiceValue(valueOfObject){
+/*function getNiceValue(valueOfObject){
     let valueOfObjectEval;
 
     if (typeof(valueOfObjectEval) === 'string') {
-        /*if(!valueOfObject.match(/[a-z]/i)) {
+        if(!valueOfObject.match(/[a-z]/i)) {
             valueOfObjectEval = eval(valueOfObject);
-        }*/
+        }
     }else if(valueOfObject === true || valueOfObject === false)
         valueOfObjectEval = valueOfObject;
     else{
         valueOfObjectEval = valueOfObject;
     }
     return valueOfObjectEval;
-}
+}*/
 
 //typeHandelLocal
 
@@ -287,34 +281,24 @@ function binaryExpressionLocalHandel(obj){
     let binaryLeft = checkTypeLocal(objBinaryLeft);
     let operator = obj.operator ;
     let boolRight; let boolLeft;
-    if(objBinaryRight.type === 'BinaryExpression'){
-        boolRight = true;
-    }else{
-        boolRight = false;
-    }
-    if(objBinaryLeft.type === 'BinaryExpression'){
-        boolLeft = true;
-    }else{
-        boolLeft = false;
-    }
+    boolRight = objBinaryRight.type === 'BinaryExpression';
+    boolLeft = objBinaryLeft.type === 'BinaryExpression';
     return createBinaryExpression(binaryRight,binaryLeft,operator,boolRight,boolLeft);
 }
 
 function identifierLocalHandel(obj){
     let objName = obj.name;
-    let ans;
+    let ans = {};
     arrayVariables.globalVariablesArray.forEach(variable => {
         if(variable.name === objName){
             ans = variable;
         }
     });
-    if(ans === undefined) {
-        return objName;
-    }else {
-        return ans.value;
-    }
+
+    return ans.value;
 
 }
+
 function literalLocalHandel(obj){
     return obj.value;
 }
@@ -350,9 +334,9 @@ function parseInAlternate(objAlternate){
         ans.row = lineIfElse;ans.color = parameterObjAlternate.color;
         arrayVariables.theModel.push(ans);
         let objAlternateBody = objAlternate.consequent.body;parseInCondition(objAlternateBody);
-        if(objAlternate.alternate !== null){
-            parseInAlternate(objAlternate.alternate);
-        }/*else{
+        //if(objAlternate.alternate !== null){
+        parseInAlternate(objAlternate.alternate);
+        /*}else{
             let ans = {};ans.row = moveRow() + '}';arrayVariables.theModel.push(ans);
         }*/
     }
@@ -361,16 +345,16 @@ function parseInAlternate(objAlternate){
 function parseInCondition(objBody) {
     let j = 0;
     let objBodyLength = objBody.length - 1;
-    if (objBody !== undefined) {
-        objBody.forEach(vari => {
-            if (objBodyLength !== j) {
-                toCopeThingsInCondition(vari);
-                j++;
-            } else {
-                toCopeLastThingInCondition(vari);
-            }
-        });
-    }
+    //if (objBody !== undefined) {
+    objBody.forEach(vari => {
+        if (objBodyLength !== j) {
+            toCopeThingsInCondition(vari);
+            j++;
+        } else {
+            toCopeLastThingInCondition(vari);
+        }
+    });
+    //}
 }
 
 function toCopeLastThingInCondition(expr){
@@ -401,12 +385,12 @@ function checkForOtherTypes(expr){
 }
 
 function toCopeThingsInCondition(expr){
-    let exprType = expr.type;
-    if(exprType==='IfStatement' ||exprType === 'WhileStatement')
-        arrayVariables.moveRow = arrayVariables.moveRow + 1 ;
+    //let exprType = expr.type;
+    //if(exprType==='IfStatement' ||exprType === 'WhileStatement')
+    //   arrayVariables.moveRow = arrayVariables.moveRow + 1 ;
     checkTypeIf(expr);
-    if(exprType==='IfStatement' || exprType === 'WhileStatement')
-        arrayVariables.moveRow = arrayVariables.moveRow - 1 ;
+    //if(exprType==='IfStatement' || exprType === 'WhileStatement')
+    //   arrayVariables.moveRow = arrayVariables.moveRow - 1 ;
 }
 
 function resetValuesInIf(){
@@ -425,9 +409,11 @@ function getParametersFromObjectTest(objTest){
         parametersTest =  getFromIdentifierTest(objTest);
     }else if(objTest.type === 'MemberExpression'){
         parametersTest = getFromMemberExpressionTest(objTest);
-    }else if(objTest.type === 'BinaryExpression'){
+    }else
         parametersTest = getFromBinaryExpressionTest(objTest);
-    }
+    /*else if(objTest.type === 'BinaryExpression'){
+        parametersTest = getFromBinaryExpressionTest(objTest);
+    }*/
     return parametersTest;
 }
 
@@ -435,33 +421,33 @@ function getFromMemberExpressionTest(objTest){
     let parametersTest = {};
     let objTestName = checkTypeGlobal(objTest);
     let objTestValue = checkTypeLocal(objTest);
-    if(objTestValue === false || objTestValue === true ){
-        parametersTest.params = objTestName;
-        if(eval(objTestValue)){
-            parametersTest.color = 'green';
-        }else
-            parametersTest.color = 'red';
-    }/*else{
-        let ansEsco = escodegen.generate(objTestValue);
-        parametersTest.params = objTestName;
-        if(eval(ansEsco)){
-            parametersTest.color = 'green';
-        }else
-            parametersTest.color = 'red';
-    }*/
+    //if(objTestValue === false || objTestValue === true ){
+    parametersTest.params = objTestName;
+    if(eval(objTestValue)){
+        parametersTest.color = 'green';
+    }else
+        parametersTest.color = 'red';
+    /*}else{
+         let ansEsco = escodegen.generate(objTestValue);
+         parametersTest.params = objTestName;
+         if(eval(ansEsco)){
+             parametersTest.color = 'green';
+         }else
+             parametersTest.color = 'red';
+     }*/
     return parametersTest;
 }
 
 function getFromIdentifierTest(objTest){
     let parametersTest = {};
     let objTestName = checkTypeLocal(objTest);
-    if(objTestName === false || objTestName === true ){
-        parametersTest.params = objTestName;
-        if(eval(objTestName)){
-            parametersTest.color = 'green';
-        }else
-            parametersTest.color = 'red';
-    }/*else{
+    //if(objTestName === false || objTestName === true ){
+    parametersTest.params = objTestName;
+    if(eval(objTestName)){
+        parametersTest.color = 'green';
+    }else
+        parametersTest.color = 'red';
+    /*}else{
         let ansEsco =  escodegen.generate(objTestName);
         parametersTest.params = objTestName;
         if(eval(ansEsco)){
@@ -488,8 +474,7 @@ function getFromBinaryExpressionTest(objTest){
 function insertValToParams(strParams){
     let esStrParams = esprima.parseScript(strParams);
     let esStrParamsExpression = checkTypeLocal(esStrParams.body[0].expression);
-    let res = esprima.parseScript(esStrParamsExpression);
-    return res;
+    return esprima.parseScript(esStrParamsExpression);
 }
 
 function checkColor(test){
@@ -501,7 +486,8 @@ function checkColor(test){
 }
 
 function insertToLocalVariableArray(res){
-    let variableLocal;
+    arrayVariables['localVariablesArray'].push(res);
+    /*let variableLocal;
     arrayVariables['localVariablesArray'].forEach(variable =>{
         if(res.name === variable.name) {
             variableLocal = variable;
@@ -509,7 +495,8 @@ function insertToLocalVariableArray(res){
     });
     if(variableLocal === undefined){
         arrayVariables['localVariablesArray'].push(res);
-    }/*else {
+
+    }*//*else {
         variableLocal.value = res.value;
     }*/
 }
@@ -519,9 +506,9 @@ function variableDeclarationLocalHandle(obj){
     let objectDeclaration = {};
     objDeclaration.forEach(dec =>{
         objectDeclaration['name'] = dec.id.name;objectDeclaration['value'] = null;
-        if(dec.init != null ){
-            objectDeclaration['value'] = checkTypeGlobal(dec.init);
-        }
+        //if(dec.init != null ){
+        objectDeclaration['value'] = checkTypeGlobal(dec.init);
+        // }
         insertToLocalVariableArray(objectDeclaration);
     });
 }
@@ -543,10 +530,10 @@ function identifierGlobalHandel(obj){
 }
 
 function findIfObjectIsLocal(obj){
-    let variableLocal;
-    arrayVariables['localVariablesArray'].forEach(variable =>{
+    //let variableLocal;
+    let variableLocal =arrayVariables['localVariablesArray'].find(variable =>{
         if(variable.name === obj.name) {
-            variableLocal = variable;
+            return variable;
         }
     });
     if(variableLocal === undefined){
@@ -565,8 +552,8 @@ function binaryExpressionGlobalHandel(obj){
     let binaryRight = checkTypeGlobal(objBinaryRight);
     let binaryLeft = checkTypeGlobal(objBinaryLeft );
     let operator = obj.operator ;
-    let boolRight; let boolLeft;
-    if(objBinaryRight.type === 'BinaryExpression'){
+    let boolRight = false ; let boolLeft = false;
+    /*if(objBinaryRight.type === 'BinaryExpression'){
         boolRight = true;
     }else{
         boolRight = false;
@@ -575,7 +562,7 @@ function binaryExpressionGlobalHandel(obj){
         boolLeft = true;
     }else{
         boolLeft = false;
-    }
+    }*/
     return createBinaryExpression(binaryRight,binaryLeft,operator,boolRight,boolLeft);
 }
 
@@ -588,16 +575,16 @@ function assignmentExpressionGlobalHandel(obj){
 }
 
 function sequenceExpressionGlobalHandel(obj){
-    let seqArray = [];let sequenceValue; let sequenceObject;
+    let seqArray = [];let sequenceValue; //let sequenceObject;
     obj.expressions.forEach(sequencExpression =>{
         sequenceValue = checkTypeGlobal(sequencExpression);
         if(!(sequencExpression.right === undefined || sequencExpression.right.type ==='ArrayExpression')){
-            sequenceObject = seqArray.find(sao => {
+            /*sequenceObject = seqArray.find(sao => {
                 if(sao.name === sequenceValue.name)
                     return sao;
-            });
-            if(sequenceObject === undefined)
-                seqArray.push(sequenceValue);
+            });*/
+            //if(sequenceObject === undefined)
+            seqArray.push(sequenceValue);
             /*else
                 sequenceObject.value = sequenceValue.value;*/
         }
@@ -619,7 +606,7 @@ function arrayGlobalHandel(obj){
     let sizeElements = obj.elements.length;
     let eleArray = '';
     for(let i =0 ; i< sizeElements ; i++){
-        if(i == 0){
+        if(i === 0){
             eleArray = eleArray + '[' +checkTypeGlobal(obj.elements[i]) +',';
         }else{
             eleArray = eleArray + checkTypeGlobal(obj.elements[i]) +',';
@@ -633,17 +620,17 @@ function variableDeclarationGlobalHandle(obj){
     let objectDeclaration = {};let declarationArray = [];
     obj.declarations.forEach(dec =>{
         objectDeclaration['name'] = dec.id.name;objectDeclaration['value'] = null;
-        if(dec.init !== null){
-            objectDeclaration['value'] = checkTypeGlobal(dec.init);
-        }
-        let objInDec;
+        //if(dec.init !== null){
+        objectDeclaration['value'] = checkTypeGlobal(dec.init);
+        //}
+        //let objInDec;
         /*declarationArray.forEach(decArr =>{
             if(decArr.name === objectDeclaration.name){
                 objInDec = decArr;
             }
         });*/
-        if(objInDec === undefined)
-            declarationArray.push(objectDeclaration);
+        // if(objInDec === undefined)
+        declarationArray.push(objectDeclaration);
         /*else
             objInDec.value = objectDeclaration.value;*/
     });
@@ -677,8 +664,7 @@ function expressionStatementGlobalHandle(obj){
 
 //typeHandelVariable
 function identifierVariableHandel(obj){
-    let objName = obj.name;
-    return objName;
+    return obj.name;
 }
 
 /*function memberExpressionVariableHandel(obj){
@@ -774,15 +760,15 @@ function codeToTable(inputVector,codeToParse){
 function takeVarFromInputVector(inputVector){
     let result = esprima.parseScript(inputVector);
     let resultBody = result.body[0];
-    if( resultBody !== undefined){
-        if(resultBody.expression.type !== 'SequenceExpression' || resultBody.type !== 'ExpressionStatement' ){
-            let res = checkTypeGlobal(resultBody);
-            if(!searchIfArray(res))
-                insertToGlobalVariableArray(res);
-        }else{
-            takeVarFromInputVectorElseBranch(resultBody);
-        }
+    //if( resultBody !== undefined){
+    if(resultBody.expression.type !== 'SequenceExpression' || resultBody.type !== 'ExpressionStatement' ){
+        let res = checkTypeGlobal(resultBody);
+        if(!searchIfArray(res))
+            insertToGlobalVariableArray(res);
+    }else{
+        takeVarFromInputVectorElseBranch(resultBody);
     }
+    //}
 }
 
 function takeVarFromInputVectorElseBranch(resultBody){
@@ -797,29 +783,29 @@ function takeVarFromInputVectorElseBranch(resultBody){
 function searchIfArray(res){
     let resValue = res.value;let boolAns;
     if(typeof(resValue) === 'string'){
-        if(resValue.includes('[',']')){
-            boolAns = true;
-            let resEsprima = esprima.parseScript(resValue);
-            let resEsprimaElements = resEsprima.body[0].expression.elements;
-            let i =0;
-            resEsprimaElements.forEach(element =>{
-                let vari = {};
-                vari.name = res.name + '[' + i + ']';
-                vari.value = checkTypeGlobal(element);
-                insertToGlobalVariableArray(vari);
-                i++;
-            });
-        }
+        //if(resValue.includes('[',']')){
+        boolAns = true;
+        let resEsprima = esprima.parseScript(resValue);
+        let resEsprimaElements = resEsprima.body[0].expression.elements;
+        let i =0;
+        resEsprimaElements.forEach(element =>{
+            let vari = {};
+            vari.name = res.name + '[' + i + ']';
+            vari.value = checkTypeGlobal(element);
+            insertToGlobalVariableArray(vari);
+            i++;
+        });
+        //}
     }else
         boolAns = false;
     return boolAns;
 }
 
 function insertToGlobalVariableArray(res){
-    let variableGlobal;
-    arrayVariables['globalVariablesArray'].forEach(variable =>{
+    //let variableGlobal;
+    let variableGlobal = arrayVariables['globalVariablesArray'].find(variable =>{
         if(res.name === variable.name) {
-            variableGlobal = variable;
+            return  variable;
         }
     });
     if(variableGlobal === undefined){
@@ -831,11 +817,33 @@ function insertToGlobalVariableArray(res){
 
 function takeThingsFromCodeToParse(codeToParse){
     let codeBody = esprima.parseScript(codeToParse);
+    //if(codeBody !== undefined){
+    codeBody.body.forEach( experCode =>{
+        if(experCode.type === 'FunctionDeclaration'){
+            parseFunction(experCode);
+        }else{
+            let arrayDeclaration =  checkTypeGlobal(experCode);
+            arrayDeclaration.forEach(declaration => {
+                insertToGlobalVariableArray(declaration);
+            });
+        }
+    });
+    //}
+}
+
+/*function takeThingsFromCodeToParse(codeToParse){
+    let codeBody = esprima.parseScript(codeToParse);
     if(codeBody !== undefined){
         codeBody.body.forEach( experCode =>{
             if(experCode.type == 'FunctionDeclaration'){
                 parseFunction(experCode);
-            }else if(experCode.type == 'VariableDeclaration'){
+            }else{
+                let arrayDeclaration =  checkTypeGlobal(experCode);
+                arrayDeclaration.forEach(declaration => {
+                    insertToGlobalVariableArray(declaration);
+                });
+            }
+            else if(experCode.type == 'VariableDeclaration'){
                 let arrayDeclaration =  checkTypeGlobal(experCode);
                 arrayDeclaration.forEach(declaration => {
                     insertToGlobalVariableArray(declaration);
@@ -845,7 +853,7 @@ function takeThingsFromCodeToParse(codeToParse){
             }
         });
     }
-}
+}*/
 
 function parseFunction(experCode){
     let parameters = getParametersFromFunction(experCode.params);
@@ -855,11 +863,11 @@ function parseFunction(experCode){
     let res = {'row': rowFunction};
     arrayVariables['theModel'].push(res);
     arrayVariables['moveRow'] = arrayVariables['moveRow'] + 1 ;
-    if(experCode.body.body !== undefined){
-        experCode.body.body.forEach(exper => {
-            checkTypeLocal(exper);
-        });
-    }
+    //if(experCode.body.body !== undefined){
+    experCode.body.body.forEach(exper => {
+        checkTypeLocal(exper);
+    });
+    //}
     arrayVariables['moveRow'] = arrayVariables['moveRow'] - 1 ;
     res = {'row': '}'};
     arrayVariables['theModel'].push(res);
@@ -881,18 +889,18 @@ function getParametersFromFunction(parametersFromFunction){
     parametersFromFunction.forEach(parameter => {
         let ans = checkTypeGlobal(parameter);
         parameters.push(ans);
-        if(parameter.type === 'Identifier'){
-            let variableGlobal;
-            arrayVariables['globalVariablesArray'].forEach(variable =>{
-                if(parameter.name === variable.name) {
-                    variableGlobal = variable;
-                }
-            });
-            if(variableGlobal === undefined){
-                variableGlobal = {'name': parameter.name , 'value': parameter.value};
-                arrayVariables['globalVariablesArray'].push(variableGlobal);
+        //if(parameter.type === 'Identifier'){
+        let variableGlobal;
+        arrayVariables['globalVariablesArray'].forEach(variable =>{
+            if(parameter.name === variable.name) {
+                variableGlobal = variable;
             }
+        });
+        if(variableGlobal === undefined){
+            variableGlobal = {'name': parameter.name , 'value': parameter.value};
+            arrayVariables['globalVariablesArray'].push(variableGlobal);
         }
+        //}
     });
     return parameters;
 }
